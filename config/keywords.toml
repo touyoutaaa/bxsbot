@@ -1,0 +1,16 @@
+[[subscriptions]]
+name = "机器学习"
+keywords = [
+    "machine learning",
+    "deep learning",
+    "neural network",
+]
+sources = [
+    "arxiv",
+    "semantic_scholar",
+]
+categories = [
+    "cs.LG",
+    "cs.AI",
+]
+enabled = true

@@ -1,0 +1,19 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(cargo check:*)",
+      "Bash(cargo run:*)",
+      "Bash(cargo build:*)",
+      "Bash(targetreleasebsxbot.exe init)",
+      "Bash(\"target/release/bsxbot.exe\" init)",
+      "Bash(\"./target/release/bsxbot.exe\" init)",
+      "Bash(ls:*)",
+      "Bash(sqlite3:*)",
+      "Bash(pgrep:*)",
+      "Bash(\"./target/release/bsxbot.exe\" crawl)",
+      "Bash(curl:*)",
+      "Bash(git remote add:*)",
+      "Bash(git add:*)"
+    ]
+  }
+}

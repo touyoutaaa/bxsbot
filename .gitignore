@@ -1,0 +1,10 @@
+/target
+/data/*.db
+/data/papers/
+/data/images/
+/data/reports/
+config/settings.toml
+*.log
+.env
+.idea/
+
