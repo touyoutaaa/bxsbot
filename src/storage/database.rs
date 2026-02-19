@@ -72,7 +72,8 @@ impl Database {
                 tables TEXT,
                 key_points TEXT,
                 created_at TEXT DEFAULT CURRENT_TIMESTAMP,
-                FOREIGN KEY (paper_id) REFERENCES papers(id)
+                FOREIGN KEY (paper_id) REFERENCES papers(id),
+                UNIQUE(paper_id)
             )
             "#,
         )
@@ -148,7 +149,7 @@ impl Database {
     /// 更新论文的PDF路径
     pub async fn update_pdf_path(&self, source: &str, source_id: &str, pdf_path: &str) -> Result<()> {
         sqlx::query(
-            "UPDATE papers SET pdf_path = ?, processed = 1 WHERE source = ? AND source_id = ?"
+            "UPDATE papers SET pdf_path = ? WHERE source = ? AND source_id = ?"
         )
         .bind(pdf_path)
         .bind(source)
@@ -157,5 +158,111 @@ impl Database {
         .await?;
 
         Ok(())
+    }
+
+    /// 保存提取内容到 extracted_content 表（upsert）
+    pub async fn save_extracted_content(
+        &self,
+        paper_id: i64,
+        formulas: &str,
+        images: &str,
+        tables: &str,
+        key_points: &str,
+    ) -> Result<()> {
+        sqlx::query(
+            r#"
+            INSERT INTO extracted_content (paper_id, formulas, images, tables, key_points)
+            VALUES (?, ?, ?, ?, ?)
+            ON CONFLICT(paper_id) DO UPDATE SET
+                formulas = excluded.formulas,
+                images = excluded.images,
+                tables = excluded.tables,
+                key_points = excluded.key_points
+            "#,
+        )
+        .bind(paper_id)
+        .bind(formulas)
+        .bind(images)
+        .bind(tables)
+        .bind(key_points)
+        .execute(&self.pool)
+        .await?;
+
+        Ok(())
+    }
+
+    /// 标记论文已处理
+    pub async fn mark_paper_processed(&self, source: &str, source_id: &str) -> Result<()> {
+        sqlx::query(
+            "UPDATE papers SET processed = 1 WHERE source = ? AND source_id = ?"
+        )
+        .bind(source)
+        .bind(source_id)
+        .execute(&self.pool)
+        .await?;
+
+        Ok(())
+    }
+
+    /// 更新论文的中文翻译
+    pub async fn update_translation(
+        &self,
+        source: &str,
+        source_id: &str,
+        title_zh: &str,
+        abstract_zh: &str,
+    ) -> Result<()> {
+        sqlx::query(
+            "UPDATE papers SET title_zh = ?, abstract_zh = ? WHERE source = ? AND source_id = ?"
+        )
+        .bind(title_zh)
+        .bind(abstract_zh)
+        .bind(source)
+        .bind(source_id)
+        .execute(&self.pool)
+        .await?;
+
+        Ok(())
+    }
+
+    /// 获取未翻译的论文列表
+    pub async fn get_untranslated_papers(&self) -> Result<Vec<Paper>> {
+        let papers = sqlx::query_as::<_, Paper>(
+            r#"SELECT id, title, title_zh, authors,
+                      abstract AS abstract_text, abstract_zh,
+                      publish_date, source, source_id,
+                      pdf_url, pdf_path, processed, created_at
+               FROM papers
+               WHERE title_zh IS NULL AND abstract IS NOT NULL"#
+        )
+        .fetch_all(&self.pool)
+        .await?;
+
+        Ok(papers)
+    }
+
+    /// 清空所有缓存数据表（保留 subscriptions）
+    pub async fn clear_all_tables(&self) -> Result<()> {
+        // 先删有外键依赖的表
+        sqlx::query("DELETE FROM extracted_content").execute(&self.pool).await?;
+        sqlx::query("DELETE FROM reports").execute(&self.pool).await?;
+        sqlx::query("DELETE FROM papers").execute(&self.pool).await?;
+        info!("数据库表已清空");
+        Ok(())
+    }
+
+    /// 获取所有论文
+    pub async fn get_all_papers(&self) -> Result<Vec<Paper>> {
+        let papers = sqlx::query_as::<_, Paper>(
+            r#"SELECT id, title, title_zh, authors,
+                      abstract AS abstract_text, abstract_zh,
+                      publish_date, source, source_id,
+                      pdf_url, pdf_path, processed, created_at
+               FROM papers"#
+        )
+        .fetch_all(&self.pool)
+        .await?;
+
+        Ok(papers)
     }
 }

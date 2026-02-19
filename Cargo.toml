@@ -2,12 +2,13 @@
 name = "bsxbot"
 version = "0.1.0"
 edition = "2021"
+default-run = "bsxbot"
 
 [dependencies]
 # 异步运行时
 tokio = { version = "1.35", features = ["full"] }
 # HTTP客户端
-reqwest = { version = "0.11", features = ["json"] }
+reqwest = { version = "0.11", default-features = false, features = ["json", "rustls-tls"] }
 # 序列化
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
@@ -15,7 +16,7 @@ serde_json = "1.0"
 config = "0.14"
 toml = "0.8"
 # 数据库
-sqlx = { version = "0.7", features = ["runtime-tokio-native-tls", "sqlite"] }
+sqlx = { version = "0.7", features = ["runtime-tokio-rustls", "sqlite"] }
 # 日志
 tracing = "0.1"
 tracing-subscriber = { version = "0.3", features = ["env-filter"] }
@@ -33,5 +34,11 @@ quick-xml = { version = "0.31", features = ["serialize"] }
 # PDF处理
 pdf-extract = "0.7"
 lopdf = "0.32"
+# 正则表达式
+regex = "1"
+# 图像处理
+image = "0.25"
+# 压缩
+flate2 = "1"
 # 命令行
 clap = { version = "4.4", features = ["derive"] }

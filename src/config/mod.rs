@@ -28,6 +28,8 @@ pub struct TranslatorConfig {
     pub api_url: String,
     pub model: String,
     pub target_language: String,
+    #[serde(default)]
+    pub proxy: String,
 }
 
 #[derive(Debug, Clone, Deserialize, Serialize)]
@@ -74,10 +76,11 @@ impl Default for AppConfig {
             },
             translator: TranslatorConfig {
                 api_provider: "minimax".to_string(),
-                api_key: "your-minimax-api-key".to_string(),
-                api_url: "https://api.minimax.chat/v1/text/chatcompletion_v2".to_string(),
-                model: "abab6.5-chat".to_string(),
+                api_key: "your-api-key".to_string(),
+                api_url: "https://api.minimaxi.com/v1/chat/completions".to_string(),
+                model: "MiniMax-M2.5".to_string(),
                 target_language: "zh-CN".to_string(),
+                proxy: "".to_string(),
             },
             generator: GeneratorConfig {
                 ppt_template: "academic".to_string(),

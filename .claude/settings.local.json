@@ -13,7 +13,15 @@
       "Bash(\"./target/release/bsxbot.exe\" crawl)",
       "Bash(curl:*)",
       "Bash(git remote add:*)",
-      "Bash(git add:*)"
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git branch:*)",
+      "Bash(git push:*)",
+      "Bash(git config:*)",
+      "WebFetch(domain:docs.rs)",
+      "WebFetch(domain:crates.io)",
+      "Bash(echo:*)",
+      "Bash(del:*)"
     ]
   }
 }
